@@ -233,7 +233,7 @@ $config['encryption_key'] = "1hy2ra3X82sa4s5qu6as7hq8uz9Bw0k0";
 */
 
 $config['sess_cookie_name']     = 'footprinted';
-$config['sess_expiration']      = 7200;
+$config['sess_expiration']      = 14400;
 
 // true is better for security reasons
 $config['sess_encrypt_cookie']  = TRUE;
@@ -242,11 +242,10 @@ $config['sess_encrypt_cookie']  = TRUE;
 $config['sess_match_ip']        = FALSE;
 $config['sess_match_useragent'] = FALSE;
 
-
 // Freak Auth Configuration
 // DB_session (that FAL uses) needs to use the database
 $config['sess_use_database']    = TRUE;
-
+$config['sess_time_to_update'] = 7200;
 $config['sess_table_name']      = 'ci_sessions';
 // End of FreakAuth Configuration
 

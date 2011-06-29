@@ -23,7 +23,6 @@
 	<li><p><a href="http://cesc.kth.se" target="_blank">CESC KTH</a></p></li>
 	<li><p><a href="http://sourcemap.com" target="_blank">Sourcemap</a></p></li>
 	<li><p><a href="http://media.mit.edu" target="_blank">MIT Media Lab</a></p></li>
-	<li><p><a href="http://uwaterloo.ca" target="_blank">U. Waterloo</a></p></li>
 	</ul>	
 	</div>
 	<div class="footer-list">
@@ -31,8 +30,7 @@
 	<li><p>Do more</p></li>
 	<li><p><a href="/search">Search</a></p></li>
 	<li><p><a href="/about/API">API</a></p></li>
-	
-	<li><p><a href="">Source Code: coming soon</a></p></li>
+	<li><p><a href="http://www.gnu.org/licenses/agpl.html">Source Code</a></p></li>
 		<li><p><a href="mailto:info@footprinted.org">Contact</a></p></li>
 	</ul>	
 	</div>
