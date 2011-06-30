@@ -395,6 +395,14 @@ class Lca extends FT_Controller {
 			$ratio = $oldamount * 0.0147867648;
 			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "L";
 		}
+		if ($parts['quantitativeReference']['unit']['label'] == "Ton Mile") {
+			$ratio = $oldamount * 1.609344;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "Ton Km";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "Per Person Per Mile") {
+			$ratio = $oldamount * 1.609344;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "Person Km";
+		}
 		// Normalizes the flows
 		if (isset($parts['exchanges']) == true) {
 			foreach ($parts['exchanges'] as &$exchanges) {
@@ -435,6 +443,10 @@ class Lca extends FT_Controller {
 			$this->db->select('uri');
 			$this->db->order_by("uri", "ASC"); 
 			$featured = $this->db->get('featured');
+			
+			
+			$all = $this->db->get('footprints');
+			$nr = count($all->result()); 
 			// Initializing array
 			$set = array();
 			foreach ($featured->result() as $feature) {
@@ -447,6 +459,7 @@ class Lca extends FT_Controller {
 		    }		
 			// Send data to the view
 			$this->data("set", $set);
+			$this->data("nr", $nr);
 			$this->display("Browse","homepage_view");		
 		}
 		

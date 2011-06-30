@@ -2,7 +2,7 @@
 <?=$metaDisplay;?>
 <html>
 <head>
-<title>Footprinted: Free and open LCA environmental data.</title>
+<title>Footprinted: Free and open environmental impact data.</title>
 	
 	<?=$styles;?>
 	<?=$headerDisplay;?>
@@ -16,7 +16,7 @@
 	
 	<div id="columnwide">
 				<div id="about">
-				<p>Free and open environmental impact information. <a href="/search">Search</a> the 700+ footprints available or explore some of the featured ones below:</p>
+				<p>Free and open environmental impact information. <a href="/search">Search</a> the <?= $nr?> footprints available or explore some of the featured ones below:</p>
 				<br/>
 				</div>
 				<?	foreach ($set as $parts) { 

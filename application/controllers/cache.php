@@ -47,7 +47,7 @@ class Cache extends FT_Controller {
 
 
 			public function cacheImpactsToMasterDB(){
-				$this->db->like('category','food');
+				$this->db->like('category','transportation');
 				$rs = $this->db->get('footprints');	
 				// Go through all the lcas
 				foreach ($rs->result() as $r) {
@@ -59,12 +59,14 @@ class Cache extends FT_Controller {
 					$data = array (
 						'co2e' => $amount
 					);
+					
+
 					$this->db->where('uri', $r->uri);
 					$this->db->update('footprints', $data);
 				}
 			}
 		public function removeImpacts(){
-			$this->db->like('category','food');	
+			$this->db->like('category','transportation');	
 			$rs = $this->db->get('footprints');	
 			// Go through all the lcas
 			foreach ($rs->result() as $r) {
@@ -78,7 +80,7 @@ class Cache extends FT_Controller {
 			}
 		}
 			public function cacheImpacts(){
-				 $this->db->like('category','food');	
+				 $this->db->like('category','transportation');	
 				$rs = $this->db->get('footprints');	
 				// Go through all the lcas
 				foreach ($rs->result() as $r) {
@@ -308,6 +310,14 @@ class Cache extends FT_Controller {
 		if ($parts['quantitativeReference']['unit']['label'] == "http://data.nasa.gov/qudt/owl/unit#TableSpoon") {
 			$ratio = $oldamount * 0.0147867648;
 			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "L";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "Ton Mile") {
+			$ratio = $oldamount * 1.609344;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "Ton Km";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "Per Person Per Mile") {
+			$ratio = $oldamount * 1.609344;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "Person Km";
 		}
 		// Normalizes the flows
 		if (isset($parts['exchanges']) == true) {
