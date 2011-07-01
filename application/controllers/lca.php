@@ -37,6 +37,21 @@ class Lca extends FT_Controller {
     * @public (For logged in users)
     * Generates a form, or, in the case where post data is passed, submits the data to the DB
     */
+
+	public function createpart($part) {
+		$data = $this->form_extended->load($part);
+		if ($this->session->userdata('convert_uris')) {
+			$uris = json_decode($this->session->userdata('convert_uris'));
+			$keys = array_keys($uris);
+			$uri = $uris[$keys[0]];
+		}
+		$triples = $this->form_extended->build_group_triples($uri, $_POST, $data);
+		//$this-lcamodel->addTriples($triples);
+		if ($this->session->userdata('convert_uris')) {
+			redirect("/converter/forms");
+		}
+	}
+	
 	public function create() {
 		$this->check_if_logged_in();
 		if ($post_data = $_POST) {	
@@ -270,14 +285,34 @@ class Lca extends FT_Controller {
 		$this->normalize($parts);
 		var_dump($parts);
 	}
+	public function viewEcospold1($URI = null) {
+		//$parts['uri'] = $URI;
+		//$parts['title'] = $this->lcamodel->getTitle("http://footprinted.org/rdfspace/lca/" . $URI);
+		echo '<?xml version="1.0" encoding="UTF-8"?>' .
+			'<ecoSpold xsi:schemaLocation="http://www.EcoInvent.org/EcoSpold01 ..\..\..\..\..\..\..\Programme\ecoinvent\EcoSpold\EcoSpold01Dataset.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.EcoInvent.org/EcoSpold01">' . 
+			'<dataset validCompanyCodes="CompanyCodes.xml" validRegionalCodes="RegionalCodes.xml" validCategories="Categories.xml" validUnits="Units.xml" number="1" generator="EcoInvent Excel2EcoSpold 1.9.8" timestamp="2007-07-03T13:30:33" internalSchemaVersion="1.0">' . 
+				'<metaInformation>' . 
+					'<processInformation>';
 		
+		$parts['exchanges'] = $this->lcamodel->convertExchanges($this->lcamodel->getExchanges("http://footprinted.org/rdfspace/lca/" . $URI));	
+		$parts['modeled'] = $this->lcamodel->convertModeled($this->lcamodel->getModeled("http://footprinted.org/rdfspace/lca/" . $URI));
+		$parts['quantitativeReference'] = $this->lcamodel->convertQR($this->lcamodel->getQR("http://footprinted.org/rdfspace/lca/" . $URI));
+		$parts['sameAs'] = $this->lcamodel->convertLinks($this->lcamodel->getSameAs("http://footprinted.org/rdfspace/lca/" . $URI));
+		$parts['categoryOf'] = $this->lcamodel->getCategories("http://footprinted.org/rdfspace/lca/" . $URI);
+		header('Content-type: application/json');
+		$this->normalize($parts);
+		var_dump($parts);
+	}		
 
 	/***
 	* @public
 	* Grabs all the triples for a particular URI and shows it in a friendly, human readable way
 	*/
 	public function view($URI = null) {	
-		// Gets everything from the linked database
+		//Check if private  
+		$this->isPrivate($URI);
+		
+		// Gets everything from the linked database	
 		$parts['uri'] = $URI;
 		$parts['impactAssessments'] = $this->lcamodel->convertImpactAssessments($this->lcamodel->getImpactAssessments("http://footprinted.org/rdfspace/lca/" . $URI));
 		$parts['bibliography'] = $this->bibliographymodel->convertBibliography($this->bibliographymodel->getBibliography("http://footprinted.org/rdfspace/lca/" . $URI));
@@ -343,7 +378,7 @@ class Lca extends FT_Controller {
 			foreach ($parts['Output']["Mass"] as $i) {
 				$totaloutput += $i['amount'];
 			}}
-		}		
+		}	
 		$links = '<p><a href="/'.$URI.'.rdf">Get this RDF</a></p><p><a href="/'.$URI.'.json">Get this in JSON</a></p>';
 		$this->data("links", $links);
 		$this->data("URI", $URI);
@@ -406,6 +441,7 @@ class Lca extends FT_Controller {
 		// Normalizes the flows
 		if (isset($parts['exchanges']) == true) {
 			foreach ($parts['exchanges'] as &$exchanges) {
+				var_dump($exchanges);
 				$exchanges['amount'] = $exchanges['amount'] / $ratio;
 				if ($exchanges['unit']['label'] == "Gram") {
 					$exchanges['amount']/=1000; $exchanges['unit']['label'] = "Kilogram"; $exchanges['unit']['abbr'] = "kg";
@@ -463,7 +499,36 @@ class Lca extends FT_Controller {
 			$this->display("Browse","homepage_view");		
 		}
 		
-				
+		// Check if LCA is private
+		private function isPrivate($URI) {
+			$this->db->where("uri",$URI);
+			$this->db->where("public",true);
+			$footprint = $this->db->get('footprints',1,0);
+			if(count($footprint->result()) == 0){
+				redirect("/search");
+			}
+		}
+		
+		private function makePrivate($URI) {
+			$data = array (
+				'public' => false
+			);
+			$this->db->where('uri', $r->uri);
+			$this->db->update('footprints', $data);
+			$footprint = $this->db->update('footprints',1,0);
+			redirect("/search");
+		}
+		
+		private function makePublic($URI) {
+			$data = array (
+				'public' => true
+			);
+			$this->db->where('uri', $r->uri);
+			$this->db->update('footprints', $data);
+			$footprint = $this->db->update('footprints',1,0);
+			redirect("/search");
+		}
+			
 		private function addSameAs() {
 			parse_str($_SERVER['QUERY_STRING'],$_GET); 
 			$ids = $_GET;

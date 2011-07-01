@@ -156,7 +156,6 @@
 			?>
 			</div>
 			<?}?>				
-
 			<? 
 				// Shows the geography (map) and date
 				echo '<div id="map" class="lca"><h2>Applies to</h2>';
@@ -168,7 +167,7 @@
 				if (isset($parts['geography']) == true ) {
 					foreach ($parts['geography'] as $geo) {
 						echo '<p>Geography: <b>'.$geo['name'].'</b></p>';
-						$map = "http://maps.google.com/maps/api/staticmap?sensor=false&size=400x370&center=".$geo['lat'].','.$geo['long']."&zoom=2&markers=size:big%7Ccolor:blue%7C".$geo['name']."&style=feature:road.local%7Celement:geometry%7Chue:0x00ff00%7Csaturation:100&style=feature:landscape%7Celement:geometry%7Clightness:-100&style=feature:poi.park%7Celement:geometry%7Clightness:-100";
+						$map = "http://maps.google.com/maps/api/staticmap?sensor=false&size=400x370&zoom=2&markers=size:big%7Ccolor:blue%7C".$geo['name']."&style=feature:road.local%7Celement:geometry%7Chue:0x00ff00%7Csaturation:100&style=feature:landscape%7Celement:geometry%7Clightness:-100&style=feature:poi.park%7Celement:geometry%7Clightness:-100";
 						echo '<div id="gmap"><img src="'.$map.'" alt="'.$geo['name'].'"/></div>';
 					}
 				} else {
