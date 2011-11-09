@@ -14,9 +14,9 @@
 <link rel="stylesheet" href="http://footprinted.org/assets/styles/reset.css" type="text/css"/>
 <link rel="stylesheet" href="http://footprinted.org/assets/styles/jquery-ui-1.8.11.custom.css" type="text/css"/>	
 <link REL="icon" type="image/ico" HREF="http://footprinted.org/favicon.ico"/>
-<link rel="stylesheet" href="http://footprinted.org/assets/styles/style.css" type="text/css"/>
-<link rel="stylesheet" href="http://footprinted.org/assets/styles/standard.css" type="text/css"/>
-<link rel="stylesheet" href="http://footprinted.org/assets/styles/form.css" type="text/css"/>
+<link rel="stylesheet" href="/assets/styles/style.css" type="text/css"/>
+<link rel="stylesheet" href="/assets/styles/standard.css" type="text/css"/>
+<link rel="stylesheet" href="/assets/styles/form.css" type="text/css"/>
 
 <script src="http://footprinted.org/assets/scripts/jquery/jquery-1.5.1.min.js"></script>
 <script src="http://footprinted.org/assets/scripts/jquery/jquery-ui-1.7.2.min.js" type="text/javascript"></script>
