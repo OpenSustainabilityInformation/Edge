@@ -285,6 +285,7 @@ class Lca extends FT_Controller {
 		$this->normalize($parts);
 		var_dump($parts);
 	}
+	
 	public function viewEcospold1($URI = null) {
 		//$parts['uri'] = $URI;
 		//$parts['title'] = $this->lcamodel->getTitle("http://footprinted.org/rdfspace/lca/" . $URI);
@@ -311,7 +312,6 @@ class Lca extends FT_Controller {
 	public function view($URI = null) {	
 		//Check if private  
 		$this->isPrivate($URI);
-		
 		// Gets everything from the linked database	
 		$parts['uri'] = $URI;
 		$parts['impactAssessments'] = $this->lcamodel->convertImpactAssessments($this->lcamodel->getImpactAssessments("http://footprinted.org/rdfspace/lca/" . $URI));
