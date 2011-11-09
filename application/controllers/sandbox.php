@@ -2,14 +2,20 @@
 
 class Sandbox extends FT_Controller {
 	
-	function Sandbox() {
+	public function __construct() {
 		parent::__construct();
 		$this->check_if_admin(); 
 		//$this->load->library(Array('formats'));
 		$this->load->model(Array('lcamodel','loadmodel','geographymodel','nacemodel'));
 	}
 	
+	function meow() {
+		$this->lcamodel->dumptag();
+	}
 	
+	function foot() {
+		$this->lcamodel->blah();
+	}
 	function nace() {
 		$this->nacemodel->dump();
 	}

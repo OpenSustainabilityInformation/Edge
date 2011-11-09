@@ -122,15 +122,15 @@ class FT_Controller extends CI_Controller {
 		$styleDisplay = null;
 		$minurl = base_url() . "server/min/?f=";
 		if($this->mobile) {
-			$csspath = 'sourcemap/assets/styles/';
-			$styleDisplay = '<link rel="stylesheet" href="'.$minurl.$csspath.'style.css';				
+			//$csspath = 'sourcemap/assets/styles/';
+			//$styleDisplay = '<link rel="stylesheet" href="'.$minurl.$csspath.'style.css';				
 		}
 		else {
 			$standard = Array('style.css','standard.css','form.css','jquery-ui-1.8.11.custom.css');
 			$this->_styles = array_merge($standard, $this->_styles);
 			 if($this->config->item("deploystatus") == "local") {
-				$csspath = base_url() . 'assets/styles/';
-				
+				//$csspath = base_url() . 'assets/styles/';
+				$csspath = '/assets/styles/';
 				$styleDisplay = '<link rel="stylesheet" href="'.$csspath.'reset.css" type="text/css"/>';								
 				foreach($this->_styles as $style) {
 					$styleDisplay .= '<link rel="stylesheet" href="'.$csspath.$style.'" type="text/css"/>';				
@@ -167,30 +167,11 @@ class FT_Controller extends CI_Controller {
 			$this->_scripts = array_merge($standard, $this->_scripts);
 		}
 		if($this->config->item("deploystatus") == "local") {			
-			$jspath = base_url() . 'assets/scripts/';
-			if($included) {
-				$scriptDisplay .= '<script type="text/javascript" src="'.$jspath.'main.js"></script>';
-			}
+			//$jspath = base_url() . 'assets/scripts/';
+			$jspath = '/assets/scripts/';
 			foreach($this->_scripts as $script) {
 				$scriptDisplay .= '<script type="text/javascript" src="'.$jspath.$script.'"></script>';
-			}		
-			if($included) {			
-				$scriptDisplay .= '<script type="text/javascript" src="'.$jspath.'messagebar.js"></script>';	
-			}		
-		}
-		else {
-			$jspath = 'assets/scripts/';
-				
-			if($included) {	$scriptDisplay .= '<script type="text/javascript" src="'.$minurl.$jspath.'main.js';}
-			else { $scriptDisplay .= '<script type="text/javascript" src="'.$minurl.$jspath.array_shift($this->_scripts); }			
-			
-			foreach($this->_scripts as $script) {
-				$scriptDisplay .= ','.$jspath . $script . '';
-			}		
-			if($included) { $scriptDisplay .= ",".$jspath.'messagebar.js"></script>';} 
-			else { $scriptDisplay .= '"></script>'; }		
-			
-			
+			}			
 		}
 		if($included) {
 			$scriptDisplay .= '<script type="text/javascript">'.$this->generateScriptVariables().'</script>';

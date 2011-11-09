@@ -12,7 +12,7 @@
 
 
 class Bibliography extends FT_Controller {
-	public function Bibliography() {
+	public function __construct() {
 		parent::__construct();
 		$this->load->model(Array('bibliographymodel'));	
 		$this->load->library(Array('form_extended'));
@@ -32,5 +32,12 @@ class Bibliography extends FT_Controller {
 	    $this->data("view_string", $the_form);
 	    $this->display("Form", "view");
 	 }
+	
+	public function browse() {
+		$refs = $this->bibliographymodel->getRefsAPA();
+		foreach ($refs as $ref) {
+			echo $ref;
+		}
+	}
 
 }

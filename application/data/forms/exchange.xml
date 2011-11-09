@@ -20,14 +20,6 @@
 		        </options>
 				<linked_type>rdfs:type</linked_type>
 		    </direction>
-		    <exchange rules="trim|uriparse">
-		        <label>Transfer/Flow</label>
-		        <type>radio</type>
-		        <options>
-		            <eco_Exchange>Exchange between the process and the environment</eco_Exchange>
-		            <eco_Transfer>Exchange between processes</eco_Transfer>
-		        </options>
-		    </exchange>
 		  	<fieldset name="Transfer or Flow" linked_type="eco:hasTransferable">
 			  	<fieldset root="thing">
 					<blank rules="">

@@ -24,9 +24,9 @@
 		<br/>
 <div id="about">
 			<? 
-			if ($user_activity == true) {
+			if ($published == true) {
 			echo "<p>Your Footprints</p>";
-			foreach ($user_activity as $fp) {
+			foreach ($published as $fp) {
 				
 				echo "<a href='".$fp["uri"]."'/><p>".$fp["title"]."</p></a>>";
 				
@@ -45,7 +45,7 @@
 
 		<div id="columnright">
 			<div class="menuabout"><h2><a href="http://footprinted.org/lca/featured">Browse the data</a></h2></div>
-			<div class="menuabout"><h2><a href="http://footprinted.org/create/start">Contribute new data</a></h2></div>
+			<div class="menuabout"><h2><a href="http://footprinted.org/lca/create">Contribute new data</a></h2></div>
 			<div class="menuabout"><h2><a href="http://footprinted.org/users/getAPIkey">API key</a></h2></div>
 			<div class="menuabout"><h2><a href="http://footprinted.org/users/allusers">Community</a></h2></div>
 			<div class="menuabout"><h2><a href="http://footprinted.org/users/editprofile">Edit your profile</a></h2></div>

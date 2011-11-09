@@ -12,7 +12,7 @@
 class Lca extends FT_Controller {
 	public function __construct() {
 		parent::__construct();
-		$this->load->model(Array('lcamodel', 'geographymodel', 'bibliographymodel','peoplemodel','commentsmodel','ecomodel'));	
+		$this->load->model(Array('lcamodel', 'geographymodel', 'bibliographymodel','peoplemodel','commentsmodel','ecomodel','searchtablemodel'));	
 		$this->load->library(Array('form_extended', 'xml'));
 		$this->load->helper(Array('nameformat_helper'));
 		$this->load->helper(Array('linkeddata_helper'));
@@ -53,6 +53,7 @@ class Lca extends FT_Controller {
 	}
 	
 	public function create() {
+		// Protection: only if logged in
 		$this->check_if_logged_in();
 		if ($post_data = $_POST) {	
 			$model_node = toURI("lca", $post_data['productServiceName_']); 
@@ -128,7 +129,7 @@ class Lca extends FT_Controller {
 			$datasets['exchange'][] = array (
 					"direction_" => 'eco_Output',
 					"exchange_" => 'eco_Transfer',
-					"transferable_" => $post_data['productServiceName_'],
+					"name_" => $post_data['productServiceName_'],
 					"quantity_" => $post_data['qrQuantity_'],
 					"unit_" => $post_data['qrUnit_']
 				);
@@ -137,13 +138,27 @@ class Lca extends FT_Controller {
 				for ($i = 0; $i< count($post_data['io_']); $i++) {
 					if ($post_data['ioUnit_'][$i] == "") 
 						$post_data['ioUnit_'][$i] = $post_data['ioUnit_label_'][$i];
-					$datasets['exchange'][] = array (
-							"direction_" => $post_data['io_'][$i],
-							"exchange_" => $post_data['exchangeType_'][$i],
-							"transferable_" => $post_data['substanceName_'][$i],
-							"quantity_" => $post_data['ioQuantity_'][$i],
-							"unit_" => $post_data['ioUnit_'][$i]
-						);
+					if (isset($post_data['substanceName_'][$i]) == true) {
+						if (isset($post_data['io_'][$i]) == false) {
+							$post_data['io_'][$i] = "";
+						}
+						if (isset($post_data['exchangeType_'][$i]) == false) {
+							$post_data['exchangeType_'][$i] = "";
+						}
+						if (isset($post_data['ioQuantity_'][$i]) == false) {
+							$post_data['ioQuantity_'][$i] = "";
+						}							
+						if (isset($post_data['ioUnit_'][$i]) == false) {
+							$post_data['ioUnit_'][$i] = "";
+						}
+						$datasets['exchange'][] = array (
+								"direction_" => $post_data['io_'][$i],
+								"exchange_" => $post_data['exchangeType_'][$i],
+								"name_" => $post_data['substanceName_'][$i],
+								"quantity_" => $post_data['ioQuantity_'][$i],
+								"unit_" => $post_data['ioUnit_'][$i]
+							);
+					}
 				}
 			}
 			
@@ -168,6 +183,11 @@ class Lca extends FT_Controller {
 					'subject' => $model_node,
 					'predicate' => 'dcterms:creator',
 					'object' => $this->session->userdata('foaf')
+				),
+				array(
+					'subject' => $model_node,
+					'predicate' => 'rdfs:label',
+					'object' => $post_data['productServiceName_']
 				),
 				array(
 					'subject' => $model_node,
@@ -231,10 +251,18 @@ class Lca extends FT_Controller {
 				);
 			}
 			$this->lcamodel->addTriples($triples);
-			redirect('/lca/view/'.str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
+				$this->searchtablemodel->addToSearchTable(str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
+			redirect('/'.str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
 			//$this->view(str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
 		}else {
-			redirect('/create/start');
+			$data = $this->form_extended->load("start"); 
+            $units = $this->unitmodel->getUnitMenu();
+            $impact_categories = $this->ecomodel->getImpactCategoryMenu();
+            $the_form = $impact_categories.'<input name="people_field" type="hidden" /><div class="dialog" name="people_dialog" id="people_dialog"></div>'.$units. $this->form_extended->build();
+            $this->style(Array('style.css', 'form.css'));
+            $this->script(Array('form.js'));
+            $this->data("view_string", $the_form);
+            $this->display("Form", "view");
 		}
 	}
 
@@ -257,13 +285,13 @@ class Lca extends FT_Controller {
 		header("Content-Disposition: attachment; filename=\"$URI.rdf\"");
 		header('Content-type: text/xml');
 		$this->normalize($parts);
-		var_dump($parts);
-	}	
+	}
+		
 	public function viewRDF($URI = null) {
 		$rdf = $this->lcamodel->getRDF("http://footprinted.org/rdfspace/lca/".$URI);
 		header("Content-Disposition: attachment; filename=\"$URI.rdf\"");
 		header('Content-type: text/xml');
-		var_dump($rdf);
+		echo $rdf;
 	}	
 
 	/***
@@ -282,8 +310,8 @@ class Lca extends FT_Controller {
 		$parts['sameAs'] = $this->lcamodel->convertLinks($this->lcamodel->getSameAs("http://footprinted.org/rdfspace/lca/" . $URI));
 		$parts['categoryOf'] = $this->lcamodel->getCategories("http://footprinted.org/rdfspace/lca/" . $URI);
 		header('Content-type: application/json');
-		$this->normalize($parts);
-		var_dump($parts);
+		$parts = $this->normalize($parts);
+		 echo $parts;
 	}
 	
 	public function viewEcospold1($URI = null) {
@@ -302,7 +330,6 @@ class Lca extends FT_Controller {
 		$parts['categoryOf'] = $this->lcamodel->getCategories("http://footprinted.org/rdfspace/lca/" . $URI);
 		header('Content-type: application/json');
 		$this->normalize($parts);
-		var_dump($parts);
 	}		
 
 	/***
@@ -330,14 +357,17 @@ class Lca extends FT_Controller {
 			}
 		}
 		$this->normalize($parts);
-		
 		$parts['year']= "";
 		foreach ($parts['bibliography'] as $b) { 
 			$parts['year'] = substr_replace($b['date'], '', 4); 
 			$parts['ref'] = $b["title"] . "Authors: ";
 			if (isset($b['authors']) == true) {
 				foreach ($b['authors'] as $author) {
-					$parts['ref'] .=  $author['lastName'] . ", " .$author['firstName'] . "; ";
+					if (isset($author['lastName']) == true) {
+						$parts['ref'] .=  $author['lastName'] . ", " .$author['firstName'] . "; ";
+					} elseif (isset($author['name']) == true) {
+						$parts['ref'] .=  $author['name'] . "; ";
+					}
 				}
 			}
 		}
@@ -378,7 +408,8 @@ class Lca extends FT_Controller {
 			foreach ($parts['Output']["Mass"] as $i) {
 				$totaloutput += $i['amount'];
 			}}
-		}	
+		}
+			
 		$links = '<p><a href="/'.$URI.'.rdf">Get this RDF</a></p><p><a href="/'.$URI.'.json">Get this in JSON</a></p>';
 		$this->data("links", $links);
 		$this->data("URI", $URI);
@@ -390,12 +421,12 @@ class Lca extends FT_Controller {
 			$this->data("totalinputland", $totalinputland);
 			$this->data("misctotal", $misctotal);		
 		}	
-		$this->script(Array('comments.js', 'janrain.js'));
-		$comment_data = $this->form_extended->load('comment');
-		$comment = $this->form_extended->build();
-		$comments = $this->commentsmodel->getComments("http://footprinted.org/osi/rdfspace/lca/".$URI);
+		$this->script(Array('comments.js'));
+		$this->form_extended->load('comment');
+		$comment_form = $this->form_extended->build();
+		$comments = $this->commentsmodel->getComments("http://footprinted.org/rdfspace/lca/".$URI);
 		$this->data("comments", $comments);
-		$this->data("comment", $comment);
+		$this->data("comment_form", $comment_form);
 		$this->display("View " . $parts['quantitativeReference']['amount'] . " " . $parts['quantitativeReference']['unit'] . " of " .  $parts['quantitativeReference']['name'], "viewLCA");		
 	}
 
@@ -441,7 +472,6 @@ class Lca extends FT_Controller {
 		// Normalizes the flows
 		if (isset($parts['exchanges']) == true) {
 			foreach ($parts['exchanges'] as &$exchanges) {
-				var_dump($exchanges);
 				$exchanges['amount'] = $exchanges['amount'] / $ratio;
 				if ($exchanges['unit']['label'] == "Gram") {
 					$exchanges['amount']/=1000; $exchanges['unit']['label'] = "Kilogram"; $exchanges['unit']['abbr'] = "kg";
@@ -467,6 +497,30 @@ class Lca extends FT_Controller {
 			}
 		}
 	}
+
+	/***
+    * @public
+    * Shows the homepage
+	* This is not functional for non-LCA entries and does not have search or filter capabilities yet
+	* Public function for exploring the repository
+    */
+	public function channel($agent) {
+		// Find the uri of the agent
+		$records = $this->lcamodel->getLCAsbyCreatorName($agent);
+		foreach ($records as $feature) {
+			//Get the URI
+			$uri = str_replace("http://footprinted.org/rdfspace/lca/","",$feature['uri']);
+			// Get the record
+			$this->db->where('uri',$uri);
+			$footprint = $this->db->get('footprints',1,0);
+			$set[$uri] = $footprint->result();
+	    }
+		// Send data to the view
+		$this->data("set", $set);
+		$this->data("nr", $nr);
+		$this->display("Browse","homepage_view");		
+	}
+
 		
 		/***
 	    * @public
@@ -501,11 +555,12 @@ class Lca extends FT_Controller {
 		
 		// Check if LCA is private
 		private function isPrivate($URI) {
+			$creator = $this->lcamodel->getCreator("http://footprinted.org/rdfspace/lca/".$URI);
 			$this->db->where("uri",$URI);
 			$this->db->where("public",true);
 			$footprint = $this->db->get('footprints',1,0);
-			if(count($footprint->result()) == 0){
-				redirect("/search");
+			if(count($footprint->result()) == 0 && $this->session->userdata('foaf') != $creator){
+				//redirect("/search");
 			}
 		}
 		

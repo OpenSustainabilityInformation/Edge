@@ -3,7 +3,7 @@ class Lcamodel extends FT_Model{
     public function Lcamodel(){
         parent::__construct();
 		$this->load->model(Array('unitmodel','geographymodel','ecomodel','opencycmodel','dbpediamodel'));
-		$this->arc_config['store_name'] = "ECOSPOLDTESTfootprinted";
+		$this->arc_config['store_name'] = "footprinted";
     }
 
 
@@ -61,7 +61,6 @@ class Lcamodel extends FT_Model{
 	public function convertExchanges($dataset){
 			if ($dataset != false) {
 				$converted_dataset = array();
-				var_dump($dataset);
 				foreach($dataset as $key=>$record) {		
 					foreach($record[$this->arc_config['ns']['eco']."hasEffect"] as $_record) {
 						foreach ($_record[$this->arc_config['ns']['rdfs']."type"] as $__record) {
@@ -250,6 +249,18 @@ class Lcamodel extends FT_Model{
 		}			
 	}
 	
+	public function getCreator($URI) {
+		$q = "select ?title where { " . 
+			" <".$URI."> dcterms:creator ?creator . " .			
+			"}";				
+		$records = $this->executeQuery($q);
+		if (count($records) > 0) {
+			return $records[0]['creator'];
+		} else {
+			return false;
+		}			
+	}
+	
 	public function getGeography($URI) {
 		$q = "select ?geo_uri where { " . 
 			" <".$URI."> eco:models ?bnode . " .
@@ -263,29 +274,78 @@ class Lcamodel extends FT_Model{
 		}
 	}
 	
+	public function getYear($URI) {
+		$q = "select ?time where { " . 
+			" <".$URI."> eco:models ?bnode . " .
+			"?bnode eco:validInterval ?bnode2 . " . 			
+			"?bnode2 time:hasEnd ?time . " . 
+			"}";				
+		$records = $this->executeQuery($q);	
+		if (count($records) != 0) {
+			preg_match_all("/[0-9]{4}/",$records[0]['time'], $years);
+			if (count($years) > 0) {
+				return $years[0][0];
+			}
+		} else {
+			return false;
+		}
+	}
+	
 	public function getLCAsByPublisher($foaf_uri) {
-		$q = "select ?uri ?title where { " . 
-			" ?uri dcterms:publisher '" . $foaf_uri . "' . " . 	
-			" ?uri eco:models ?bnode . " . 
-			" ?bnode rdfs:label ?title . " . 		
+		$q = "select * where { " . 
+			" ?uri dcterms:creator '" . $foaf_uri . "' . " . 	
+			" ?uri rdfs:label ?title . " . 
+			" { ?uri rdfs:type eco:FootprintModel . } UNION { ?uri rdfs:type eco:Model . } UNION { ?uri rdfs:type eco:LCAModel . } " . 		
 			"}" . 
 			"LIMIT 10 ";
-
 		$records = $this->executeQuery($q);	
-
 		if (count($records) != 0) {
 			return $records;
 		} else {
 			return false;
 		}
 	}
-	
+
+	public function getLCAsByCreatorName($name) {
+		$q = "select ?uri where { " . 
+			" ?foaf_uri ?p ?name . " . 		
+			" ?uri dcterms:creator ?foaf_uri . " . 	
+			" ?uri rdfs:label ?title . " . 
+			" { ?uri rdfs:type eco:FootprintModel . } UNION { ?uri rdfs:type eco:Model . } UNION { ?uri rdfs:type eco:LCAModel . } " . 
+			"FILTER regex(?name, '" . $name . "', 'i')" .	
+			"}" . 
+			"LIMIT 10 ";
+		$records = $this->executeQuery($q);	
+		if (count($records) != 0) {
+			return $records;
+		} else {
+			return false;
+		}
+	}
+
+	public function dumptag() {
+		$x = $this->getRecords();
+		foreach ($x as $y) {
+			$triples = array(
+				array(
+					's' => $y['uri'],
+					'p' => 'dcterms:creator',
+					'o' => 'http://footprinted.org/rdfspace/agent/footprinted'
+				),
+				array(
+					's' => $y['uri'],
+					'p' => 'dcterms:created',
+					'o' => date('h:i:s-m:d:Y')
+				)	
+			);	
+			$this->addTriples($triples);	
+		}	
+	}	
 
 	// Get external links for a resource (DBPedia...)
 	public function getSameAs($URI){
 		$q = "select ?uri where { " . 
 			" <".$URI."> eco:models ?bnode . " .			
-			" ?bnode rdfs:type  eco:Product . " .
 			" ?bnode owl:sameAs  ?uri . " .
 			"}";
 		$records = $this->executeQuery($q);
@@ -302,16 +362,21 @@ class Lcamodel extends FT_Model{
 				foreach($results as $r){
 					switch ($r['c']) {
 					    case 'http://www.w3.org/2000/01/rdf-schema#label':
-							$converted_dataset[$record['uri']]['title'] =  $r['object'];
+							$converted_dataset[$record['uri']]['label'] =  $r['object'];
 							break;	
 					    case 'http://www.w3.org/2002/07/owl#sameAs': 			
 							if (strpos( $r['object'],"dbpedia")==true){
-								$converted_dataset[$record['uri']]['dbpedia'] =  $r['object'];
 								// Change the address to get the triples instead
-								$address = str_replace("resource","data",$r['object']);
-								$this->dbpediamodel->loadDBpediaEntry($address);	
-								$converted_dataset[$record['uri']]['description'] = $this->dbpediamodel->getDBpediaDescription($r['object']);
-								$converted_dataset[$record['uri']]['img'] = $this->dbpediamodel->getImageURL($r['object']);
+								$address = str_replace("resource","data",$r['object']);	
+								$this->dbpediamodel->loadDBpediaEntry($address);
+								$converted_dataset[] = array (
+										'label' => $this->dbpediamodel->getDBpediaLabel($r['object']),
+										'info' => $this->dbpediamodel->getDBpediaDescription($r['object']),
+										'uri' => $r['object']
+									);
+								//$converted_dataset[$record['uri']]['dbpedia'] =  $r['object'];
+								//$converted_dataset[$record['uri']]['description'] = $this->dbpediamodel->getDBpediaDescription($r['object']);
+								//$converted_dataset[$record['uri']]['img'] = $this->dbpediamodel->getImageURL($r['object']);
 							}
 							break;
 					    case 'http://www.w3.org/2000/01/rdf-schema#comment': 
@@ -326,52 +391,50 @@ class Lcamodel extends FT_Model{
 	}
 	
 	public function getQR($URI) {
-		$q = "select ?bnode ?name where { " . 
-			" <".$URI."> eco:models ?bnode . " .			
-			" ?bnode rdfs:label ?name . " .
-			"{ ?bnode rdfs:type eco:Product . } UNION { ?bnode rdfs:type eco:Substance . } UNION { ?bnode rdfs:type eco:Energy . } " . 
-			"}";				
+		$q = "select ?name ?unit ?magnitude where { " . 
+			" <".$URI."> eco:hasReferenceExchange ?exchange_bnode . " .
+			" ?exchange_bnode eco:hasEffect ?effect_bnode . " .
+			" ?exchange_bnode eco:hasQuantity ?quantity_bnode . " .
+			" { ?quantity_bnode eco:hasMagnitude ?magnitude . } UNION { ?quantity_bnode ecoUD:meanValue ?magnitude . } " .
+			" ?quantity_bnode eco:hasUnitOfMeasure ?unit . " .
+			" ?effect_bnode eco:hasTransferable ?transferable . " .	
+			" ?transferable rdfs:label ?name . " .			
+			"}";
 		$records = $this->executeQuery($q);
-		if (count($records) > 0) {
-			$q = "select ?magnitude ?unit ?exchange_bnode where { " . 
-				" ?exchange_bnode eco:hasEffect ?effect_bnode . " .
-				" ?exchange_bnode eco:hasQuantity ?quantity_bnode . " .
-				" ?quantity_bnode eco:hasMagnitude ?magnitude . " .
-				" ?quantity_bnode eco:hasUnitOfMeasure ?unit . " .
-				" ?effect_bnode eco:hasTransferable <" . $records[0]['bnode'] . "> . " .			
-				"}";
-			$full_records = $this->executeQuery($q);
-			$full_records[0]['name'] = $records[0]['name'];
-			return $full_records;
+		if (count($records) > 0) {							
+			return $records;
 		} else {
-				$q = "select ?unit ?name where { " . 
-					" <".$URI."> eco:hasFunctionalUnitofMeasure ?bnode . " .
-					" ?bnode eco:hasFunction ?name . " .
-					" ?bnode eco:hasUnitQuantity ?unit . " .			
-					"}";
+			$q = "select ?unit ?name where { " . 
+				" <".$URI."> eco:hasFunctionalUnitofMeasure ?bnode . " .
+				" ?bnode eco:hasFunction ?name . " .
+				" ?bnode eco:hasUnitQuantity ?unit . " .			
+				"}";
+			$records = $this->executeQuery($q);
+			if (count($records) > 0) {				
+				$records[0]['magnitude'] = "1";				
+				return $records;
+			} else {
+				$q = "select ?bnode ?name where { " . 
+					" <".$URI."> eco:models ?bnode . " .			
+					" ?bnode rdfs:label ?name . " .
+					"{ ?bnode rdfs:type eco:Product . } UNION { ?bnode rdfs:type eco:Substance . } UNION { ?bnode rdfs:type eco:Energy . } " . 
+					"}";				
 				$records = $this->executeQuery($q);
-				if (count($records) > 0) {				
-					$records[0]['magnitude'] = "1";				
-					return $records;
-				} else {
-					
-					$q = "select ?name ?unit ?magnitude where { " . 
-						" <".$URI."> eco:hasReferenceExchange ?exchange_bnode . " .
+				if (count($records) > 0) {
+					$q = "select ?magnitude ?unit ?exchange_bnode where { " . 
 						" ?exchange_bnode eco:hasEffect ?effect_bnode . " .
 						" ?exchange_bnode eco:hasQuantity ?quantity_bnode . " .
-						" { ?quantity_bnode eco:hasMagnitude ?magnitude . } UNION { ?quantity_bnode ecoUD:meanValue ?magnitude . } " .
+						" ?quantity_bnode eco:hasMagnitude ?magnitude . " .
 						" ?quantity_bnode eco:hasUnitOfMeasure ?unit . " .
-						" ?effect_bnode eco:hasTransferable ?transferable . " .	
-						" ?transferable rdfs:label ?name . " .			
+						" ?effect_bnode eco:hasTransferable <" . $records[0]['bnode'] . "> . " .			
 						"}";
-					//var_dump($q);
-					$records = $this->executeQuery($q);
-					if (count($records) > 0) {							
-						return $records;
-					} else {
-						return false;
-					}
+					$full_records = $this->executeQuery($q);
+					$full_records[0]['name'] = $records[0]['name'];
+					return $full_records;
+				} else {
+					return false;
 				}
+			}
 		}
 	}
 	
@@ -513,16 +576,22 @@ class Lcamodel extends FT_Model{
 		$q = "select ?uri where { " . 
 			" <".$URI."> eco:models ?bnode . " .
 			" ?bnode eco:hasCategory  ?uri . " .			
-			" { ?bnode rdfs:type  eco:Product . } UNION { ?bnode rdfs:type  eco:Substance . } UNION { ?bnode rdfs:type  eco:Energy . } " .
+			" { ?bnode rdfs:type  eco:Process . } UNION { ?bnode rdfs:type  eco:Product . } UNION { ?bnode rdfs:type  eco:Substance . } UNION { ?bnode rdfs:type  eco:Energy . } " .
 			"}";
 		$records = $this->executeQuery($q);
 		if (count($records) > 0) {
 			$categories = array();
 			foreach ($records as $record) {
-				$categories[] = array(
-					'uri'=>$record['uri'],
-					'label'=>$this->opencycmodel->getOpenCycLabel($record['uri'])
-				);
+				if (isURI($record['uri']) == true) {
+					$categories[] = array(
+						'uri'=>$record['uri'],
+						'label'=>$this->opencycmodel->getOpenCycLabel($record['uri'])
+					);
+				} else {
+					$categories[] = array(
+						'label'=>$record['uri']
+					);					
+				}
 			}
 			return $categories;
 		} else {
@@ -590,6 +659,93 @@ class Lcamodel extends FT_Model{
 			}
 		}
 		return $records;
+	}
+	
+	public function blah() {
+		$triples = array(
+			array(
+				's' => 'http://footprinted.org/rdfspace/agent/footprinted',
+				'p' => 'rdfs:type',
+				'o' => 'foaf:Organization'
+			),
+			array(
+				's' => 'http://footprinted.org/rdfspace/agent/footprinted',
+				'p' => 'foaf:name',
+				'o' => 'Footprinted'
+			)		
+		);	
+		$this->addTriples($triples);
+	}
+	
+	
+	
+	/*
+	Private function that normalizes to 1 functional unit and to kilograms if possible
+	*/
+	public function normalize($parts){
+		/* Normalize to 1 */
+		$oldamount = $parts['quantitativeReference']['amount'];
+		$ratio = $parts['quantitativeReference']['amount'];
+		$parts['quantitativeReference']['amount'] = 1;
+		// If grams	
+		if (strpos("Gram", $parts['quantitativeReference']['unit']['label']) !== false) {
+			$ratio = $oldamount / 1000;
+			$parts['quantitativeReference']['unit']['label'] = "Kilogram"; $parts['quantitativeReference']['unit']['abbr'] = "kg";
+		}	
+		// If ounces
+		if ($parts['quantitativeReference']['unit']['label'] == "http://data.nasa.gov/qudt/owl/unit#Ounce" ) {
+			$ratio = $oldamount * 0.028345;
+			$parts['quantitativeReference']['unit']['label'] = "Kilogram"; $parts['quantitativeReference']['unit']['abbr'] = "kg";
+		}
+		// If pounds
+		if ($parts['quantitativeReference']['unit']['label'] == "http://data.nasa.gov/qudt/owl/unit#Pound") {
+			$ratio = $oldamount * 0.45359237;
+			$parts['quantitativeReference']['unit']['label'] = "Kilogram";$parts['quantitativeReference']['unit']['abbr'] = "kg";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "http://data.nasa.gov/qudt/owl/unit#Pound") {
+			$ratio = $oldamount * 0.45359237;
+			$parts['quantitativeReference']['unit']['label'] = "Kilogram";$parts['quantitativeReference']['unit']['abbr'] = "kg";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "http://data.nasa.gov/qudt/owl/unit#TableSpoon") {
+			$ratio = $oldamount * 0.0147867648;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "L";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "Ton Mile") {
+			$ratio = $oldamount * 1.609344;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "Ton Km";
+		}
+		if ($parts['quantitativeReference']['unit']['label'] == "Per Person Per Mile") {
+			$ratio = $oldamount * 1.609344;
+			$parts['quantitativeReference']['unit']['label'] = "Liter";$parts['quantitativeReference']['unit']['abbr'] = "Person Km";
+		}
+		// Normalizes the flows
+		if (isset($parts['exchanges']) == true) {
+			foreach ($parts['exchanges'] as &$exchanges) {
+				$exchanges['amount'] = $exchanges['amount'] / $ratio;
+				if ($exchanges['unit']['label'] == "Gram") {
+					$exchanges['amount']/=1000; $exchanges['unit']['label'] = "Kilogram"; $exchanges['unit']['abbr'] = "kg";
+				}
+				if ($exchanges['unit']['label'] == "Pound Mass") {
+					$exchanges['amount'] = $exchanges['amount'] * 0.45359237; 
+					$exchanges['unit']['label'] = "Kilogram"; $exchanges['unit']['abbr'] = "kg";
+				}
+			}
+		}
+		// Normalizes the impacts
+		if (isset($parts['impactAssessments']) == true) {
+			foreach ($parts['impactAssessments'] as &$impactAssessment) {
+				$impactAssessment['amount'] = $impactAssessment['amount'] / $ratio;
+				if ($impactAssessment['unit']['label'] == "Gram") { 
+					$impactAssessment['amount']/=1000; 
+					$impactAssessment['unit']['label'] = "Kilogram"; $impactAssessment['unit']['abbr'] = "kg";
+				}
+				if ($impactAssessment['unit']['label'] == "Pound Mass") { 
+					$impactAssessment['amount']*=0.45359237; 
+					$impactAssessment['unit']['label'] = "Kilogram"; $impactAssessment['unit']['abbr'] = "kg";
+				}
+			}
+		}
+		return $parts;
 	}
 
 }

@@ -11,7 +11,10 @@
 |	http://www.your-site.com/
 |
 */
-$config['base_url'] = "http://footprinted.org";
+
+$config['base_url'] = "http://footprinted.org/";
+
+
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -337,5 +340,7 @@ function __autoload($class)
         @include_once(APPPATH . 'core/' . $class . EXT);
     }
 }
+
+
 
 ?>

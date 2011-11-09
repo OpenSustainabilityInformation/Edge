@@ -10,7 +10,7 @@
 
 class About extends FT_Controller {
 	
-	public function About() {
+	public function __construct() {
 		parent::__construct();
 		$this->load->model(Array());
 		$this->load->helper();
@@ -31,7 +31,16 @@ class About extends FT_Controller {
 		$this->db->where('title',"Team");	
 		$rs = $this->db->get('texts');
 		$this->data('text', $rs->result());
-		$this->data('title', "Footprinted.org Team");
+		$this->data('title', "Footprinted.org - Team");
+		$this->display("Footprinted.org", "info_view");
+	}
+	
+	public function contribute()
+	{	
+		$this->db->where('title',"Contribute");	
+		$rs = $this->db->get('texts');
+		$this->data('text', $rs->result());
+		$this->data('title', "Footprinted.org - Contribute");
 		$this->display("Footprinted.org", "info_view");
 	}
 	
@@ -40,7 +49,7 @@ class About extends FT_Controller {
 		$this->db->where('title',"Code");	
 		$rs = $this->db->get('texts');
 		$this->data('text', $rs->result());
-		$this->data('title', "Footprinted.org Code");
+		$this->data('title', "Footprinted.org - Code");
 		$this->style(Array(''));
 		$this->display("Footprinted.org", "info_view");
 	}
@@ -49,7 +58,7 @@ class About extends FT_Controller {
 		$this->db->where('title',"API");	
 		$rs = $this->db->get('texts');
 		$this->data('text', $rs->result());
-		$this->data('title', "Footprinted.org API");
+		$this->data('title', "Footprinted.org - API");
 		$this->style(Array(''));
 		$this->display("Footprinted.org", "info_view");
 	}

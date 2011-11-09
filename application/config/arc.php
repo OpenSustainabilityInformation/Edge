@@ -22,6 +22,9 @@
 | variable so that it is blank.
 |
 */
+
+
+
 $config['arc_info'] = array();
 $config['arc_info']['store_name'] = 'footprinted';
 $config['arc_info']['ns'] = array(
@@ -32,22 +35,18 @@ $config['arc_info']['ns'] = array(
 'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
 'sioc' => 'http://rdfs.org/sioc/ns',
 'bibo' => 'http://purl.org/ontology/bibo/',
-'eco' => 'http://ontology.earthster.org/eco/core#',
-'ecoUD' => 'http://ontology.earthster.org/eco/uncertaintydistribution#',
-'fasc' => 'http://ontology.earthster.org/eco/fasc#',
-'oselemflow' => 'http://footprinted.org/vocab/elementaryFlows',
-'ossia' => 'http://footprinted.org/vocab/simpleImpactAssessment',
 'qudt' => 'http://data.nasa.gov/qudt/owl/qudt#',
 'qudtu' => 'http://data.nasa.gov/qudt/owl/unit#',
 'qudtq' => 'http://data.nasa.gov/qudt/owl/quantity#',
 'qudtd' => 'http://data.nasa.gov/qudt/owl/dimension#',
 'nist' => 'http://physics.nist.gov/cuu/',
 'event' => 'http://purl.org/rss/1.0/modules/event/',
+'eco' => 'http://ontology.earthster.org/eco/core#',
+'ecoUD' => 'http://ontology.earthster.org/eco/uncertaintydistribution#',
 'ecoalloc' => 'http://ontology.earthster.org/eco/alloc#',
 'ecoattr' => 'http://ontology.earthster.org/eco/attribute#',
 'ecob' => 'http://ontology.earthster.org/eco/bridges#',
 'cml2001' => 'http://ontology.earthster.org/eco/cml2001#',
-'eco' => 'http://ontology.earthster.org/eco/core#',
 'ecodl' =>'http://ontology.earthster.org/eco/ecodl#',
 'ecofull' =>'http://ontology.earthster.org/eco/ecofull#',
 'ecoinvent' =>'http://ontology.earthster.org/eco/ecoinvent#',
@@ -57,7 +56,6 @@ $config['arc_info']['ns'] = array(
 'ecoilcd' =>'http://ontology.earthster.org/eco/ilcd#',
 'impact' =>'http://ontology.earthster.org/eco/impact#',
 'impact2002' =>'http://ontology.earthster.org/eco/impact2002Plus#',
-'ecoud' =>'http://ontology.earthster.org/eco/uncertaintyDistribution#',
 'ecounit' =>'http://ontology.earthster.org/eco/unit#',
 'wgs84_pos'=>'http://www.w3.org/2003/01/geo/wgs84_pos#',
 'gn'=>'http://www.geonames.org/ontology#',
@@ -66,7 +64,9 @@ $config['arc_info']['ns'] = array(
 'ISO3166' => 'http://downlode.org/Code/RDF/ISO-3166/schema#',
 'time' => 'http://www.w3.org/TR/owl-time/',
 'nace2' => 'http://ec.europa.eu/eurostat/ramon/rdfdata/nace_r2/',
-'nace' => 'http://ec.europa.eu/eurostat/ramon/ontologies/nace.rdf#'
+'nace' => 'http://ec.europa.eu/eurostat/ramon/ontologies/nace.rdf#',
+'vcard' => 'http://www.w3.org/2006/vcard/ns#',
+'copyr' => 'http://rhizomik.net/ontologies/2009/09/copyrightonto.owl'
 );		    
 $config['arc_info']['endpoint_features'] = array(
     'select', 'construct', 'ask', 'describe', // allow read
