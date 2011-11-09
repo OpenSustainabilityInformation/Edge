@@ -7,7 +7,7 @@ font-size: 12px;
 color: #3FA9F5;
 font-size: 12px;
 text-transform:uppercase;
-margin-top:14px;
+margin-top:10px;
 }
 
 input {
@@ -15,16 +15,16 @@ color: #333;
 background: #fff;
 width:400px;
 border: 1px solid #ccc; 
-padding:8px;
-font-size:20px;
+padding:6px;
+font-size:14px;
 }
 
 textarea {
 color: #333;
 background: #fff;
 border: 1px solid #ccc;
-padding:8px;
-font-size:20px;
+padding:6px;
+font-size:14px;
 width: 400px;
 height: 180px;
 }
@@ -193,20 +193,21 @@ text-transform:uppercase;
 }
 #form_substanceName, #form_ioQuantity  {
 	float:left;
-	width:245px;
+	width:200px;
 }
 #form_ioUnit {
 	float:left;
-	width:490px;
+	width:400px;
 }
 #form_ioUnit label{
-	width:490px;
+	width:400px;
 }
 #form_substanceName input, #form_ioQuantity input, #form_ioUnit input {
-	width:225px;
+	width:175px;
 }
-#form_io label,#form_exchangeType label{
-	width:200px;
+#form_io, #form_io label,#form_exchangeType label{
+	float:left;
+	width:150px;
 }
 #form_io input{
 	width:15px;
@@ -217,31 +218,35 @@ text-transform:uppercase;
 }
 #form_impactCategory{
 	float: left;
-	width: 900px;
+	width: 330px;
 	margin-bottom: 10px;
 }
 #form_assessmentUnit{
 	float: left;
-	width: 480px;
+	width: 300px;
 	margin-bottom: 10px;
 }
 #form_impactCategoryIndicator, #form_assessmentQuantity  {
 	float: left;
-	width: 240px;
+	width:160px;
+	margin-right: 10px;
 	margin-bottom: 10px;
 }
 #form_assessmentQuantity, #form_assessmentQuantity label {
 	float: left;
-	width: 240px;
+	width: 150px;
 }
 #form_impactCategory label{
-	width: 900px;
+	width: 300px;
 }
 #form_impactCategoryIndicator label,  #form_assessmentUnit label {
-	width: 460px;
+	width: 310px;
 }
-#form_impactCategory input,  #form_assessmentQuantity input, #form_impactCategoryIndicator input, #form_assessmentUnit input {
-	width: 225px;
+#form_impactCategory input,  #form_impactCategoryIndicator input {
+	width:150px;
+}
+#form_assessmentQuantity input, #form_assessmentUnit input {
+	width:130px;
 }
 #form_impactCategoryIndicator > #impacts{
 	display:none;
@@ -285,6 +290,7 @@ text-transform:uppercase;
 #div_impact_assessment label {
 	color: #000099;
 }
+
 /* For search */
 #searchinput{
 	float:left;

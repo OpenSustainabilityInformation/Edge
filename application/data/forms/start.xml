@@ -21,7 +21,12 @@
             <label>Unit</label>
             <type>popup</type>
             <popup>unit</popup>
-        </qrUnit> 
+        </qrUnit>
+		<geoLocation rules="trim">
+			<label>Geographic Location</label>
+			<type>text</type>
+		  	<linked_type>eco:hasGeoLocation</linked_type>
+		</geoLocation>
         <category rules="trim">
             <label>Category</label>
             <type>dropdown</type>
@@ -69,14 +74,6 @@
                 <eco_Output>Output</eco_Output>
             </options>
         </io>
-        <exchangeType rules="trim">
-            <label>Flow</label>
-            <type>radio</type>
-            <options>
-                <eco_Exchange>Exchange between the process and the environment</eco_Exchange>
-                <eco_Transfer>Exchange between processes</eco_Transfer>
-            </options>
-        </exchangeType>
         <substanceName rules="trim">
             <label>Substance Name</label>
             <type>text</type>
@@ -92,16 +89,15 @@
         </ioUnit>     
     </fieldset>
     <fieldset name="Impact Assessment" multiple="yes">    
-        <impactCategory rules="trim">
+         <impactCategoryIndicator rules="trim">   <label>Impact Indicator</label>
+            <type>popup</type>
+            <popup>impacts</popup>
+        </impactCategoryIndicator>
+		<impactCategory rules="trim">
             <label>Impact Category</label>
             <type>popup</type>
             <popup>impacts</popup>
         </impactCategory>
-        <impactCategoryIndicator rules="trim">
-            <label>Impact Indicator</label>
-            <type>popup</type>
-            <popup>impacts</popup>
-        </impactCategoryIndicator>
         <assessmentQuantity rules="trim">
             <label>Quantity</label>
             <type>text</type>
