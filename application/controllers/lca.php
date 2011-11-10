@@ -55,7 +55,7 @@ class Lca extends FT_Controller {
 	public function create() {
 		// Protection: only if logged in
 		$this->check_if_logged_in();
-		if ($post_data = $_POST) {	
+		if ($post_data = $_POST) {
 			$model_node = toURI("lca", $post_data['productServiceName_']); 
 			$exchange_node = $model_node;
 			$bibliography_node = toURI("bibliography", $post_data['title_']); 
@@ -203,8 +203,10 @@ class Lca extends FT_Controller {
 					'subject' => $model_node,
 					'predicate' => 'rdfs:type',
 					'object' => "eco:Model"
-				),
-			);	
+				),	
+
+				
+			);
 
 			foreach ($datasets as $key=>$dataset) {
 				if ($key != "submit_") {
@@ -236,6 +238,13 @@ class Lca extends FT_Controller {
 					$triple['object'] = $_product_node;
 				}								
 			}
+			if ($post_data['geoLocation_'] != "") {
+			$triples[] = array(
+				"subject" => $_process_node,
+				"predicate" => "eco:hasGeoLocation",
+				"object" => $post_data['geoLocation_']
+			);
+			}
 			if (isset($_product_node) == true) {
 				$triples[] = array(
 					"subject" => $_ia_node,
@@ -251,8 +260,8 @@ class Lca extends FT_Controller {
 				);
 			}
 			$this->lcamodel->addTriples($triples);
-				$this->searchtablemodel->addToSearchTable(str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
-			redirect('/'.str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
+			$this->searchtablemodel->addToSearchTable(str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
+			redirect('http://edge.footprinted.org/'.str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
 			//$this->view(str_replace("http://footprinted.org/rdfspace/lca/","",$model_node));
 		}else {
 			$data = $this->form_extended->load("start"); 

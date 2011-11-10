@@ -48,7 +48,7 @@ class Searchtablemodel extends FT_Model{
 					'ref' => $parts['bibliography'][0]
 				);
 		if (isset($parts['geography'][0]['name']) == true) {
-			$data['country'] = $parts['geography'][0]['name'];
+			$data['geography'] = $parts['geography'][0]['name'];
 		}
 		if (isset($parts['year']) == true) {
 			$data['year'] = $parts['year'];
